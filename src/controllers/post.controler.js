@@ -82,6 +82,45 @@ const delete_post = async (req, res) => {
     }
 }
 
+const deleteUser_Post = async (req, res) => {
+    try {
+        const iduser = req.user.id
+        const deletedUser = await postNew.destroy({
+            where: { user_id: iduser }
+        })
+
+        const uploadDir = `${process.cwd()}/upload`
+        const Post_Dir = `${uploadDir}/post_picture`
+        console.log('file data yang akan dihapus' + datatoJson[delete_post])
+        fs.unlinkSync(`${Post_Dir}/${datatoJson[deletedPost]}`)
+        res.status(200).send({
+            message: 'This post has been deleted',
+            data: deletedUser
+        })
+    } catch (error) {
+        return res.send({
+            message: 'was not deleted',
+            data: error
+        })
+    }
+}
+
+const getdata = async (req, res) => {
+    try {
+        const data = await postNew.findOne()
+        return res.send({
+            massage: "Get data",
+            data: data
+        })
+
+    } catch (error) {
+        return res.send({
+            message: 'Not gate data',
+            data: error
+        })
+    }
+}
+
 const post = async (req, res) => {
     const iduser = req.user.id
     console.log(iduser);
@@ -106,4 +145,4 @@ const post = async (req, res) => {
     }
 }
 
-module.exports = { post, delete_post }
+module.exports = { post, delete_post, deleteUser_Post }
