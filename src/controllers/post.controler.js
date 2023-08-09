@@ -107,7 +107,27 @@ const deleteUser_Post = async (req, res) => {
 
 const getdata = async (req, res) => {
     try {
+        const iduser = req.user.id
         const data = await postNew.findOne()
+        return res.send({
+            massage: "Get data",
+            data: data
+        })
+
+    } catch (error) {
+        return res.send({
+            message: 'Not gate data',
+            data: error
+        })
+    }
+}
+
+const getdata_byid = async (req, res) => {
+    try {
+        const id = req.params.id
+        const data = await postNew.findOne({
+            where: {user_id: id}
+        })
         return res.send({
             massage: "Get data",
             data: data
@@ -145,4 +165,4 @@ const post = async (req, res) => {
     }
 }
 
-module.exports = { post, delete_post, deleteUser_Post }
+module.exports = { post, delete_post, deleteUser_Post,getdata,getdata_byid}
