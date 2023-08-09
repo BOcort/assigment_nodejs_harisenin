@@ -1,6 +1,7 @@
 const { postNew } = require('../models')
 const jwt = require('jsonwebtoken')
 const { get } = require('../routes/product.route')
+const fs = require('fs');
 
 const create_post = async (req, res) => {
     const user_id = req.user.id
@@ -26,13 +27,12 @@ const upload_post = async (req, res) => {
     const user_id = req.user.id
     const post_photo = req.file.filename
     const getpost = await postNew.findOne({
-        where: {user_id: user_id}
+        where: { user_id: user_id }
     })
     const datalama = getpost.dataValues.body
-    console.log('ini datalama ' + datalama);
     let datatoJson = JSON.parse(datalama)
     const numberOfEntries = Object.keys(datatoJson).length + 1;
-    datatoJson[`${numberOfEntries}`] =  `${post_photo}`
+    datatoJson[`${numberOfEntries}`] = `${post_photo}`
     const jsonstring = JSON.stringify(datatoJson)
     try {
         const input = await postNew.update({
@@ -45,6 +45,38 @@ const upload_post = async (req, res) => {
     } catch (error) {
         return res.send({
             message: 'Fail Uploading',
+            data: error
+        })
+    }
+}
+
+const delete_post = async (req, res) => {
+    const user_id = req.user.id
+    const { deletedPost } = req.body
+
+    const getpost = await postNew.findOne({
+        where: { user_id: user_id }
+    })
+    const datalama = getpost.dataValues.body
+    const datatoJson = JSON.parse(datalama)
+
+    const uploadDir = `${process.cwd()}/upload`
+    const Post_Dir = `${uploadDir}/post_picture`
+    console.log('file data yang akan dihapus' + datatoJson[delete_post])
+    fs.unlinkSync(`${Post_Dir}/${datatoJson[deletedPost]}`)
+    delete datatoJson[`${deletedPost}`]
+    const jsonstring = JSON.stringify(datatoJson)
+    try {
+        const input = await postNew.update({
+            body: jsonstring
+        }, { where: { user_id: user_id } })
+
+        return res.send({
+            Message: "Succsed deleted post",
+        })
+    } catch (error) {
+        return res.send({
+            message: 'Fail deleted post',
             data: error
         })
     }
@@ -74,4 +106,4 @@ const post = async (req, res) => {
     }
 }
 
-module.exports = { post }
+module.exports = { post, delete_post }
